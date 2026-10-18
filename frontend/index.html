@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LapStore — tìm chiếc laptop phù hợp cho công việc, học tập và sáng tạo.">
+  <title>LapStore — Mở máy. Mở khả năng.</title>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css"><script src="/main.js" defer></script>
+</head>
+<body>
+  <div class="announcement">Một chiếc laptop. Vô vàn khả năng. <span>Khám phá bộ sưu tập LapBook →</span></div>
+  <header class="header">
+    <a class="logo" href="/" aria-label="LapStore trang chủ"><img src="/assets/logo.svg" alt="" width="32" height="32">LapStore<span>.</span></a>
+    <nav aria-label="Điều hướng chính"><button class="nav-button active" id="shop-nav">Khám phá</button><button class="nav-button" id="admin-nav">Quản lý sản phẩm</button></nav>
+    <button class="cart-button" id="open-cart" aria-label="Mở giỏ hàng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14l-1 13H6L5 7Zm4 0V5a3 3 0 0 1 6 0v2"/></svg><span>Giỏ hàng</span><b id="cart-count">0</b></button>
+  </header>
+  <main>
+    <section id="shop-view">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy"><div class="eyebrow"><i></i> THIẾT KẾ CHO MỖI NGÀY CỦA BẠN</div><h1 id="hero-title">Mở máy.<br>Mở <em>khả năng.</em></h1><p>Từ ý tưởng đầu tiên đến dự án tiếp theo.<br>Tìm chiếc laptop đồng hành cùng bạn.</p><a class="button primary" href="#collection">Khám phá laptop <span>↗</span></a><div class="hero-caption"><span>01 /</span> Làm việc. Sáng tạo. Chơi hết mình.</div></div>
+        <div class="hero-visual"><div class="visual-label">LAPBOOK COLLECTION <span>2026</span></div><div class="orb"></div><img class="hero-laptop" src="/assets/laptop-blue.svg" alt="Minh họa laptop LapBook màu xanh"><div class="visual-bottom"><div><span>MỎNG NHẸ. ĐẦY CẢM HỨNG.</span><strong>Đi xa hơn mỗi ngày.</strong></div><span class="round-arrow">↗</span></div></div>
+      </section>
+      <div class="benefits"><div><span>◎</span><p><strong>Chọn theo nhu cầu</strong><small>Học tập, làm việc & sáng tạo</small></p></div><div><span>◇</span><p><strong>Thông tin rõ ràng</strong><small>Giá bán và tồn kho trực tiếp</small></p></div><div><span>↗</span><p><strong>Trải nghiệm tinh gọn</strong><small>Tìm laptop phù hợp với bạn</small></p></div></div>
+      <section class="collection" id="collection" aria-labelledby="collection-title">
+        <div class="section-heading"><div><div class="eyebrow muted">TÌM ĐÚNG NGƯỜI BẠN ĐỒNG HÀNH</div><h2 id="collection-title">Laptop dành cho bạn<span>.</span></h2></div><span id="result-count" class="count">Đang tải…</span></div>
+        <div class="toolbar"><div class="filters" id="filters" role="group" aria-label="Lọc danh mục"><button class="filter active" data-category="all" aria-pressed="true">Tất cả</button><button class="filter" data-category="Văn phòng" aria-pressed="false">Văn phòng</button><button class="filter" data-category="Học tập" aria-pressed="false">Học tập</button><button class="filter" data-category="Đồ họa" aria-pressed="false">Đồ họa</button><button class="filter" data-category="Gaming" aria-pressed="false">Gaming</button></div><div class="search-sort"><label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="search" type="search" placeholder="Tìm laptop…" aria-label="Tìm laptop"></label><select id="sort" aria-label="Sắp xếp sản phẩm"><option value="new">Mới nhất</option><option value="price-asc">Giá tăng dần</option><option value="price-desc">Giá giảm dần</option><option value="name">Tên A–Z</option></select></div></div>
+        <div id="products" class="product-grid" aria-live="polite"><div class="empty">Đang kết nối cửa hàng…</div></div>
+      </section>
+      <section class="feature-banner"><div><span class="eyebrow">KHÔNG CHỈ LÀ MỘT THIẾT BỊ</span><h2>Một khởi đầu mới,<br>theo cách của bạn.</h2><p>Chọn danh mục phù hợp và bắt đầu khám phá.</p></div><button class="button light" id="work-filter">Laptop cho công việc ↗</button><span class="banner-outline" aria-hidden="true">L.</span></section>
+    </section>
+    <section id="admin-view" hidden aria-labelledby="admin-title"><div class="section-heading"><div><div class="eyebrow muted">LAPSTORE / QUẢN LÝ</div><h1 id="admin-title">Sản phẩm<span>.</span></h1><p class="muted">Thêm, chỉnh sửa và quản lý tồn kho laptop.</p></div><button class="button primary" id="add-product">＋ Thêm sản phẩm</button></div><div class="stats"><div><small>Sản phẩm</small><strong id="stat-products">—</strong></div><div><small>Tổng tồn kho</small><strong id="stat-stock">—</strong></div><div><small>Hết hàng</small><strong id="stat-empty">—</strong></div></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Sản phẩm</th><th>Danh mục</th><th>Tồn kho</th><th>Giá</th><th>Thao tác</th></tr></thead><tbody id="admin-rows"></tbody></table></div></section>
+  </main>
+  <footer><div><a class="logo" href="/">LapStore<span>.</span></a><p>Công nghệ đồng hành cùng bạn.</p></div><p>Demo học tập · Sản phẩm & giá minh họa<br>Giỏ hàng chưa tích hợp thanh toán.</p><span>© 2026 LapStore</span></footer>
+  <dialog id="product-dialog"><form id="product-form"><div class="dialog-head"><h2 id="form-title">Thêm sản phẩm</h2><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><input type="hidden" id="product-id"><label>Tên laptop<input id="product-name" name="name" required maxlength="120" placeholder="Ví dụ: LapBook Air 14"></label><label>Danh mục<select id="product-category" name="category"><option>Văn phòng</option><option>Học tập</option><option>Đồ họa</option><option>Gaming</option></select></label><div class="form-grid"><label>Số lượng<input id="product-quantity" name="quantity" type="number" min="0" max="1000000" step="1" value="1" required></label><label>Giá (VND)<input id="product-price" name="price" type="number" min="0" max="999999999" step="1" required placeholder="21990000"></label></div><p id="form-error" class="error-text" role="alert"></p><div class="dialog-actions"><button type="button" class="button secondary close-dialog">Hủy</button><button type="submit" class="button primary" id="save-product">Lưu sản phẩm</button></div></form></dialog>
+  <dialog id="detail-dialog"><div class="dialog-head"><span class="eyebrow muted">KHÁM PHÁ LAPBOOK</span><button class="icon-button close-dialog" aria-label="Đóng">×</button></div><div id="detail-content"></div></dialog>
+  <dialog id="cart-dialog"><div class="dialog-head"><h2>Giỏ hàng của bạn</h2><button class="icon-button close-dialog" aria-label="Đóng">×</button></div><div id="cart-items"></div><div class="cart-total"><span>Tạm tính</span><strong id="cart-total">0 ₫</strong></div><p class="cart-note">Giỏ hàng minh họa được lưu trên trình duyệt. Chưa có đặt hàng hoặc thanh toán.</p><button class="button primary full close-dialog">Tiếp tục khám phá →</button></dialog>
+  <dialog id="delete-dialog"><div class="dialog-head"><h2>Xóa sản phẩm?</h2><button class="icon-button close-dialog" aria-label="Đóng">×</button></div><p id="delete-description"></p><p class="muted">Sản phẩm sẽ bị xóa khỏi database.</p><div class="dialog-actions"><button class="button secondary close-dialog">Hủy</button><button id="confirm-delete" class="button danger">Xóa sản phẩm</button></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

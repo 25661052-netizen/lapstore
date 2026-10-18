@@ -1,0 +1,62 @@
+# Tùy chọn: chỉ bật sau khi stack lapstore-live đã có database.
+services:
+  backup:
+    image: mysql:8.4
+    restart: unless-stopped
+    entrypoint: ["bash", "/backup.sh"]
+    environment:
+      MYSQL_PWD: ${DB_PASSWORD:?Use runtime .env}
+    volumes:
+      - ./backup.sh:/backup.sh:ro
+      - ./backups:/backups
+    networks: [live]
+  blackbox:
+    image: prom/blackbox-exporter:latest
+    restart: unless-stopped
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    networks: [live, default]
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports: ["127.0.0.1:9090:9090"]
+  cadvisor:
+    image: ghcr.io/google/cadvisor:0.60.6
+    restart: unless-stopped
+    # Theo dõi Docker trên Linux server; không mở port ra ngoài host.
+    privileged: true
+    cgroup: host
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    command:
+      - --docker_only=true
+      - --housekeeping_interval=10s
+      - --store_container_labels=false
+      - --whitelisted_container_labels=com.docker.compose.project,com.docker.compose.service
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?Set GRAFANA_PASSWORD for optional monitoring}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-datasource.yml:/etc/grafana/provisioning/datasources/lapstore.yml:ro
+    ports: ["127.0.0.1:3001:3000"]
+networks:
+  live:
+    external: true
+    name: lapstore-live_default
+volumes:
+  prometheus_data:
+  grafana_data:

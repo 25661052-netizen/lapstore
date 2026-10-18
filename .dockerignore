@@ -1,0 +1,16 @@
+node_modules
+.git
+.github
+.env
+*.log
+reports
+ci
+cd
+registry
+ops
+docs
+*.tar
+*.tar.gz
+*.zip
+compose*.yml
+README.md
