@@ -1,7 +1,9 @@
 # Registry riêng trên cùng Linux server với runner
 
 Thiết kế tối giản: CNCF Distribution `registry:3`, TLS bằng CA nội bộ, bcrypt
-htpasswd, named volume. Endpoint: `registry.lapstore.internal:5443`.
+htpasswd, named volume. Endpoint: `registry.lapstore.internal:5204`.
+Host port 5204 nằm trong dải 5200–5300 được chọn cho homeserver; port trong
+container vẫn là 5000.
 Bind localhost nên GitHub-hosted CI không truy cập trực tiếp; job Delivery chạy
 trên self-hosted runner cùng máy sẽ nhận artifact image và push vào registry.
 
@@ -25,8 +27,8 @@ Thêm một dòng vào `/etc/hosts` trên server bằng `sudoedit /etc/hosts`:
 Trust CA cho Docker (chạy từ thư mục source):
 
 ```bash
-sudo mkdir -p /etc/docker/certs.d/registry.lapstore.internal:5443
-sudo cp registry/certs/ca.crt /etc/docker/certs.d/registry.lapstore.internal:5443/ca.crt
+sudo install -d -m 755 /etc/docker/certs.d/registry.lapstore.internal:5204
+sudo install -m 644 registry/certs/ca.crt /etc/docker/certs.d/registry.lapstore.internal:5204/ca.crt
 ```
 
 Trust CA cho host cũng cần để các Docker CLI dùng TLS trực tiếp:
@@ -42,16 +44,16 @@ sudo update-ca-certificates
 
 ```bash
 docker compose -p lapstore-registry -f registry/compose.yml up -d
-curl --cacert registry/certs/ca.crt -I https://registry.lapstore.internal:5443/v2/
-docker login registry.lapstore.internal:5443
+curl --cacert registry/certs/ca.crt -I https://registry.lapstore.internal:5204/v2/
+docker login registry.lapstore.internal:5204
 ```
 
 Curl chưa đăng nhập trả **401** là đúng. `docker login` phải thành công sau khi nhập
 tài khoản. Nếu Docker chưa nhận CA, khởi động lại Docker vào lúc không có dịch vụ
 cần duy trì. Không đặt registry thành insecure chỉ để bỏ qua TLS.
 
-Trong GitHub: `REGISTRY_HOST=registry.lapstore.internal:5443`,
-`REGISTRY_IMAGE=registry.lapstore.internal:5443/lapstore/app`.
+Trong GitHub: `REGISTRY_HOST=registry.lapstore.internal:5204`,
+`REGISTRY_IMAGE=registry.lapstore.internal:5204/lapstore/app`.
 Username/password đưa vào Secrets, không vào source. Không cần tạo project Harbor
 vì bản này dùng Distribution; namespace `lapstore/app` được tạo khi push.
 
