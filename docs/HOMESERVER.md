@@ -109,7 +109,7 @@ ss -ltn
 command -v git curl openssl python3 flock
 ```
 
-Kiểm tra các port host 3000, 8080, 3001, 9090, 5443 chưa bị dịch vụ khác chiếm.
+Kiểm tra các port host 3000, 8080, 3001, 9090, 5204 chưa bị dịch vụ khác chiếm.
 Không dừng dịch vụ khác chỉ để lấy port; nếu có xung đột thì đổi port của LapStore
 và các lệnh tunnel/test tương ứng.
 
@@ -328,21 +328,21 @@ Thêm dòng sau nếu chưa có:
 Trust CA cho Docker và Ubuntu, rồi chạy registry:
 
 ```bash
-sudo mkdir -p /etc/docker/certs.d/registry.lapstore.internal:5443
-sudo cp registry/certs/ca.crt /etc/docker/certs.d/registry.lapstore.internal:5443/ca.crt
+sudo mkdir -p /etc/docker/certs.d/registry.lapstore.internal:5204
+sudo cp registry/certs/ca.crt /etc/docker/certs.d/registry.lapstore.internal:5204/ca.crt
 sudo cp registry/certs/ca.crt /usr/local/share/ca-certificates/lapstore-registry.crt
 sudo update-ca-certificates
 docker compose -p lapstore-registry -f registry/compose.yml up -d
 docker compose -p lapstore-registry -f registry/compose.yml ps
-curl --cacert registry/certs/ca.crt -I https://registry.lapstore.internal:5443/v2/
-docker login registry.lapstore.internal:5443
+curl --cacert registry/certs/ca.crt -I https://registry.lapstore.internal:5204/v2/
+docker login registry.lapstore.internal:5204
 ```
 
 Curl chưa có credentials trả **401** là đúng; `docker login` phải thành công và
 không báo lỗi certificate. Nếu Docker chưa nhận CA, xem [REGISTRY.md](REGISTRY.md)
 trước khi cân nhắc restart daemon vì homeserver có thể đang chạy dịch vụ khác.
 
-Registry bind loopback 5443. CI trên GitHub sẽ gửi image bằng artifact cho runner
+Registry bind loopback 5204. CI trên GitHub sẽ gửi image bằng artifact cho runner
 trên homeserver; không cần public registry này để GitHub-hosted runner truy cập.
 
 ## 7. Tạo runtime live và self-hosted runner
@@ -401,8 +401,8 @@ Trong **Settings → Secrets and variables → Actions**, nhập các mục sau:
 | Loại | Tên | Giá trị |
 |---|---|---|
 | Variable | `ENABLE_DELIVERY` | Giữ `false` cho đến khi CI đạt và runner Idle |
-| Variable | `REGISTRY_HOST` | `registry.lapstore.internal:5443` |
-| Variable | `REGISTRY_IMAGE` | `registry.lapstore.internal:5443/lapstore/app` |
+| Variable | `REGISTRY_HOST` | `registry.lapstore.internal:5204` |
+| Variable | `REGISTRY_IMAGE` | `registry.lapstore.internal:5204/lapstore/app` |
 | Variable | `DEPLOY_DIR` | Đường dẫn tuyệt đối ở bước 7, ví dụ `/home/youruser/lapstore-runtime` |
 | Secret | `REGISTRY_USER` | Username đã tạo ở bước 6 |
 | Secret | `REGISTRY_PASSWORD` | Password tương ứng |
@@ -439,7 +439,7 @@ curl -fsS http://127.0.0.1:8080/health -o "$EVIDENCE_DIR/live-v1-health.json"
 cp "$DEPLOY_DIR/state" "$EVIDENCE_DIR/live-v1-state.txt"
 ```
 
-Kỳ vọng `release` là chuỗi `registry.lapstore.internal:5443/lapstore/app@sha256:...`,
+Kỳ vọng `release` là chuỗi `registry.lapstore.internal:5204/lapstore/app@sha256:...`,
 trùng current image trong state và `image.txt` ở artifact Delivery. State không
 chứa DB password nhưng vẫn lưu evidence nội bộ.
 

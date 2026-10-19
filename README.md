@@ -107,7 +107,15 @@ PR chỉ chạy CI. Biến delivery tắt không ngăn rollback thủ công trê
 Dockerfile single-stage được giữ theo lựa chọn đã chốt, thay cho yêu cầu multi-stage
 ban đầu. MySQL, Nginx, registry và monitoring dùng image có sẵn, không thêm Dockerfile.
 
+Image ứng dụng dùng Node 24 Alpine khóa bằng digest, chỉ chứa source cần chạy.
+Sau `npm ci`, npm/Yarn được gỡ khỏi runtime; app khởi động bằng `node app.js`.
+Chạy các lệnh npm trên máy phát triển hoặc helper Node riêng theo hướng dẫn test.
+
 ## 6. Trạng thái kiểm chứng
+
+Kết quả thực tế trên homeserver ngày 19/10/2026 nằm tại
+[docs/MANUAL-VALIDATION.md](docs/MANUAL-VALIDATION.md), gồm scan image, test với MySQL
+và các phần đang được giữ lại để học triển khai.
 
 Xem [docs/VALIDATION.md](docs/VALIDATION.md) để phân biệt kết quả đã chạy và phần
 phải xác nhận trên Docker/server của bạn. Source có triển khai các bước, nhưng ZIP

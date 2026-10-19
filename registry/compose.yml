@@ -3,7 +3,7 @@ services:
     image: registry:3
     restart: unless-stopped
     ports:
-      - "127.0.0.1:5443:5000"
+      - "127.0.0.1:5204:5000"
     environment:
       REGISTRY_HTTP_ADDR: 0.0.0.0:5000
       REGISTRY_HTTP_TLS_CERTIFICATE: /certs/server.crt
