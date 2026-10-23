@@ -3,7 +3,9 @@
   "version": "1.0.1",
   "private": true,
   "description": "LapStore — laptop shop and Docker CI/CD learning project",
-  "engines": { "node": ">=24 <25" },
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "start": "node app.js",
     "test": "node --test ci/unit.test.js",
@@ -11,6 +13,7 @@
   },
   "dependencies": {
     "express": "5.3.0",
+    "lodash": "4.17.15",
     "mysql2": "3.24.6"
   }
 }
