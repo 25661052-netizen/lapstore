@@ -1,13 +1,3 @@
-# LAPSTORE — CI/CD: test, build, scan, push, blue-green và rollback.
-# Đặt file này tại .github/workflows/ci-cd.yml khi triển khai dự án.
-# Test: ci/. Deploy/rollback: cd/. Hướng dẫn thiết lập: docs/CICD.md.
-# GitHub Variables: REGISTRY_HOST, REGISTRY_IMAGE, DEPLOY_DIR, ENABLE_DELIVERY.
-# ENABLE_DELIVERY=true: cho phép push/deploy mới; false hoặc chưa đặt: chỉ CI.
-# Rollback thủ công trên main vẫn được phép khi ENABLE_DELIVERY=false.
-# GitHub Secrets: REGISTRY_USER, REGISTRY_PASSWORD.
-# Delivery runner: Linux x64, nhãn lapstore-delivery; có Docker + Compose v2.
-# DB demo dùng .env tại DEPLOY_DIR; CI dùng mật khẩu tạm và volume riêng.
-
 name: LapStore CI/CD
 
 on:
