@@ -1,0 +1,12 @@
+apiVersion: 1
+providers:
+  - name: LapStore
+    orgId: 1
+    folder: LapStore
+    folderUid: lapstore
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/dashboards

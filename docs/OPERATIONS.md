@@ -4,22 +4,18 @@ Các file trong `ops/` không cần để chạy web hoặc CI. Chỉ bật sau 
 `lapstore-live` đã chạy, vì mạng ngoài `lapstore-live_default` phải tồn tại.
 Chạy từ source nằm ổn định trên server, không dùng runner checkout làm nơi giữ backup.
 
-## Bật
+## Monitoring hiện tại
 
-Thêm `GRAFANA_PASSWORD=<mật khẩu riêng>` vào `.env` runtime; Docker Compose CD bỏ qua
-biến không dùng này. Sau đó:
+Dùng [ops/monitoring/README.md](../ops/monitoring/README.md), project
+`lapstore-monitoring`: một container chứa Supervisor và bốn chương trình.
+Grafana ở `127.0.0.1:5202`, Prometheus ở `127.0.0.1:5203`, truy cập từ máy cá
+nhân qua SSH tunnel. Cấu hình dùng `.env` riêng tại `ops/monitoring/.env` và
+hai named volume riêng; dashboard/datasource được provision tự động.
 
-```bash
-docker compose -p lapstore-ops --env-file /home/you/lapstore-runtime/.env -f ops/compose.yml up -d
-```
-
-Mặc định: Grafana localhost:3001, Prometheus localhost:9090, không mở ra Internet.
-Grafana username admin, password ở biến trên. Datasource Prometheus đã được provision.
-Import file `ops/dashboard.json` qua Dashboards → New → Import để xem dashboard mẫu.
-
-cAdvisor được cố định phiên bản 0.60.6. Các image monitoring còn lại dùng tag latest để tiện bắt đầu lab. Trước khi dùng lâu dài,
-ghi lại phiên bản/digest đã thử và pin trong ops/compose.yml; chúng không thuộc image
-ứng dụng được CI build/scan/push. Không tuyên bố mọi image hạ tầng đều đã được Trivy quét.
+Kết quả build, Trivy, targets, metrics và persistence do người vận hành xác
+nhận được ghi ở [VALIDATION.md](../ops/monitoring/VALIDATION.md). Cấu hình cũ
+trong `ops/compose.yml` giữ để tham khảo; không chạy `up -d` toàn bộ file đó
+để bật monitoring hiện tại. Container backup vẫn chờ triển khai riêng.
 
 ## Backup
 
@@ -46,7 +42,11 @@ docker compose exec -T db sh -c 'MYSQL_PWD="$MYSQL_PASSWORD" mysql -u lapstore l
 Refresh web, query SQL và đối chiếu sản phẩm với thời điểm backup. Lệnh trên có thể
 ghi đè bảng trong database đích. Tự kiểm chứng restore mới được coi backup sử dụng được.
 
-## Monitoring
+## Monitoring cũ — tham khảo
+
+Các mô tả và lệnh bên dưới áp dụng cho bốn service riêng trong
+`ops/compose.yml`, không phải cấu hình monitoring gộp đang vận hành. Với
+monitoring hiện tại, dùng runbook liên kết ở đầu tài liệu.
 
 Blackbox Exporter gọi `/health` qua gateway; Prometheus thu thập 5 giây/lần; Grafana
 vẽ trạng thái, HTTP code, thời gian phản hồi và tỷ lệ thành công. Database lỗi làm

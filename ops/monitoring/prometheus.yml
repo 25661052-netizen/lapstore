@@ -1,0 +1,41 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["127.0.0.1:9090"]
+
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["127.0.0.1:8080"]
+    # Retain resource metrics only for LapStore Compose projects.
+    metric_relabel_configs:
+      - source_labels: [container_label_com_docker_compose_project]
+        regex: 'lapstore-(live|lab|registry|monitoring)'
+        action: keep
+
+  - job_name: blackbox
+    static_configs:
+      - targets: ["127.0.0.1:9115"]
+
+  - job_name: lapstore
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ["http://gateway/health"]
+        labels:
+          route: internal
+      - targets: ["https://lapstore.vansao.com/health"]
+        labels:
+          route: public
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: "127.0.0.1:9115"

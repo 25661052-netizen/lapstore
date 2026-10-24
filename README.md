@@ -5,9 +5,9 @@ MySQL 8.4. Một Dockerfile cho ứng dụng; `ci/` chứa test, `cd/` chứa tr
 
 Nếu triển khai qua SSH trên Ubuntu homeserver đã có Docker, làm theo
 [hướng dẫn từng bước](docs/HOMESERVER.md): đưa source lên GitHub, chạy lab,
-kiểm chứng persistence, dựng registry và bật CI/CD. Hướng dẫn cũng ghi rõ phần
-monitoring gộp một container là bước cần triển khai tiếp; source hiện vẫn dùng
-bốn container monitoring riêng.
+kiểm chứng persistence, dựng registry và bật CI/CD. Monitoring gộp một container
+nằm tại [ops/monitoring](ops/monitoring/README.md), chạy bằng Compose project
+riêng. Cấu hình bốn container cũ trong `ops/compose.yml` được giữ để tham khảo.
 
 ## 1. Chạy web trên máy của bạn
 
@@ -104,14 +104,19 @@ PR chỉ chạy CI. Biến delivery tắt không ngăn rollback thủ công trê
 | `docs/` | Kiến trúc, pipeline, persistence, drill, vận hành |
 | `reports/` | Báo cáo phát sinh khi test/deploy; không commit dữ liệu chạy |
 
-Dockerfile single-stage được giữ theo lựa chọn đã chốt, thay cho yêu cầu multi-stage
-ban đầu. MySQL, Nginx, registry và monitoring dùng image có sẵn, không thêm Dockerfile.
+Dockerfile ứng dụng vẫn single-stage theo lựa chọn đã chốt. MySQL, Nginx và
+registry dùng image có sẵn. Monitoring có Dockerfile single-stage riêng, gộp
+Supervisor, cAdvisor, Blackbox, Prometheus và Grafana trong một container.
 
 Image ứng dụng dùng Node 24 Alpine khóa bằng digest, chỉ chứa source cần chạy.
 Sau `npm ci`, npm/Yarn được gỡ khỏi runtime; app khởi động bằng `node app.js`.
 Chạy các lệnh npm trên máy phát triển hoặc helper Node riêng theo hướng dẫn test.
 
 ## 6. Trạng thái kiểm chứng
+
+Monitoring ngày 24/10/2026 đã được người vận hành báo build OK, Trivy PASS,
+năm targets UP, dashboard có metrics và lịch sử Prometheus còn sau recreate.
+Xem [báo cáo monitoring](ops/monitoring/VALIDATION.md) để biết phạm vi bằng chứng.
 
 Kết quả thực tế trên homeserver ngày 19/10/2026 nằm tại
 [docs/MANUAL-VALIDATION.md](docs/MANUAL-VALIDATION.md), gồm scan image, test với MySQL

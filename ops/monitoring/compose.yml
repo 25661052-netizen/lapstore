@@ -1,0 +1,75 @@
+name: lapstore-monitoring
+
+services:
+  monitoring:
+    image: ${MONITORING_IMAGE:-lapstore-monitoring:1.0.0}
+    build:
+      context: .
+    platform: linux/amd64
+    pull_policy: never
+    restart: unless-stopped
+    stop_grace_period: 90s
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cgroup: host
+    cpus: "1.0"
+    mem_limit: 1536m
+    mem_reservation: 512m
+    memswap_limit: 2048m
+    pids_limit: 256
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?Set GRAFANA_PASSWORD in ops/monitoring/.env}
+    ports:
+      - "127.0.0.1:5202:3000"
+      - "127.0.0.1:5203:9090"
+    networks:
+      - live
+    volumes:
+      - prometheus_data:/var/lib/prometheus
+      - grafana_data:/var/lib/grafana
+      # Host observation for cAdvisor: review this access before starting.
+      # A read-only socket mount does NOT restrict Docker API operations.
+      - type: bind
+        source: /
+        target: /rootfs
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /sys
+        target: /sys
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /var/lib/docker
+        target: /var/lib/docker
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+        bind:
+          create_host_path: false
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=128m,mode=1777
+      - /run/supervisor:rw,nosuid,nodev,noexec,size=8m,mode=0755
+      - /var/log/grafana:rw,nosuid,nodev,noexec,size=16m,uid=10002,gid=10002,mode=0750
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  live:
+    external: true
+    name: lapstore-live_default
+
+volumes:
+  prometheus_data:
+  grafana_data:

@@ -25,9 +25,11 @@ Source có frontend, API, MySQL, workflow và script blue-green. Đường dẫn
 Compose nguồn trong `cd/init.sh` và `cd/common.sh` đã được sửa thành
 `cd/compose.deploy.yml`; bản sao tại runtime vẫn là `compose.deploy.yml`.
 
-**Monitoring gộp chưa được triển khai trong source hiện tại.** `ops/compose.yml`
-vẫn khai báo bốn service monitoring riêng và một service backup. Bước 11 là công
-việc cần viết/build/kiểm chứng tiếp; chạy Compose hiện tại không tự gộp chúng.
+**Monitoring gộp dùng `ops/monitoring/compose.yml`**, project `lapstore-monitoring`.
+Xem [runbook monitoring](../ops/monitoring/README.md) và
+[kết quả kiểm chứng](../ops/monitoring/VALIDATION.md). `ops/compose.yml` vẫn giữ
+cấu hình bốn service cũ để tham khảo; không dùng để bật monitoring gộp.
+Thứ tự thực hiện hiện tại là monitoring trước, container backup/restore sau.
 
 Mục tiêu sau khi gộp và đã có hai slot ứng dụng là **7 container thường trực**:
 `blue`, `green`, `db`, `gateway`, `registry`, `backup`, `monitoring`.
@@ -554,74 +556,31 @@ docker compose -p lapstore-lab --env-file .env -f compose.yml down
 Backup trên cùng ổ đĩa chưa bảo vệ khỏi mất cả server; nếu cần giữ dữ liệu thật,
 thêm bản sao ở nơi độc lập. Xem [OPERATIONS.md](OPERATIONS.md).
 
-## 11. Gộp monitoring thành một container — công việc cần triển khai tiếp
+## 11. Monitoring gộp một container
 
-**Chưa có service `monitoring` để chạy trong source hiện tại.** Chỉ thực hiện
-các lệnh cho service này sau khi đã viết và kiểm chứng thay đổi bên dưới.
-Đây là phần nâng cao sau khi ứng dụng/pipeline đã ổn định.
+Monitoring hiện dùng Compose riêng tại [ops/monitoring/compose.yml](../ops/monitoring/compose.yml),
+project `lapstore-monitoring`. Làm theo [runbook monitoring](../ops/monitoring/README.md)
+để build, quét, khởi chạy, truy cập dashboard và kiểm tra persistence.
+Không dùng cấu hình bốn container cũ trong `ops/compose.yml` để bật stack này.
 
-Kiểm tra nền tảng host trước khi chọn binary/build image:
+Theo xác nhận của người vận hành ngày 24/10/2026: build OK, Trivy PASS, bốn
+chương trình RUNNING, năm targets UP, các phần dashboard có metrics và
+`PROMETHEUS_PERSISTENCE=PASS` sau recreate. Phạm vi bằng chứng và các điểm chưa
+được xác nhận riêng nằm tại [VALIDATION.md](../ops/monitoring/VALIDATION.md).
 
-```bash
-uname -m
-docker info --format 'RootDir={{.DockerRootDir}} Cgroup={{.CgroupVersion}} Security={{json .SecurityOptions}}'
-ls -ld /dev/kmsg /dev/disk /var/lib/docker
-```
+Grafana ở `127.0.0.1:5202`, Prometheus ở `127.0.0.1:5203`; truy cập qua SSH
+tunnel theo runbook. cAdvisor và Blackbox chỉ lắng nghe loopback bên trong
+container. Supervisor nằm cùng container, không tạo container Supervisor riêng.
 
-Các thay đổi cần làm trên branch riêng:
+Source/assets/Go khóa version/hash trong `source-lock.json`. Dockerfile
+monitoring là single-stage riêng; Dockerfile ứng dụng vẫn single-stage chung
+frontend/backend và app chạy non-root. Các tiến trình Grafana, Prometheus,
+Blackbox dùng user riêng; Supervisor/cAdvisor dùng root cho phạm vi quan sát host
+đã được người vận hành chấp nhận. Compose không bật privileged hoặc host PID.
 
-| File | Thay đổi cần thực hiện |
-|---|---|
-| `ops/monitoring/Dockerfile` mới | Đóng gói Supervisor + cAdvisor + Blackbox + Prometheus + Grafana, pin version/kiểm tra checksum |
-| Cấu hình Supervisor mới | Bốn chương trình foreground, quản lý restart/stop, log stdout/stderr, UNIX socket cho supervisorctl |
-| Entrypoint/healthcheck mới | Chuẩn bị quyền volume, kiểm tra cả bốn tiến trình và endpoints |
-| `ops/compose.yml` | Thay bốn service bằng một `monitoring`, giữ service `backup` |
-| `ops/prometheus.yml` | cAdvisor thành `127.0.0.1:8080`; Blackbox thành `127.0.0.1:9115` |
-| `ops/grafana-datasource.yml` | Datasource thành `http://127.0.0.1:9090` |
-| Tài liệu vận hành/kiểm chứng | Cập nhật lệnh và kết quả thực tế sau chuyển đổi |
-
-Grafana cần cả distribution và frontend assets, không chỉ binary. Giữ job labels
-`cadvisor`, `lapstore`, datasource UID `lapstore-prometheus` để dùng lại dashboard.
-Giữ tên volumes `prometheus_data`, `grafana_data` để bảo toàn dữ liệu khi recreate.
-
-Container monitoring kết nối network `lapstore-live_default`; Blackbox vẫn probe
-`http://gateway/health`. Chỉ publish Grafana `127.0.0.1:3001:3000` và Prometheus
-`127.0.0.1:9090:9090`; không publish Supervisor, cAdvisor hoặc Blackbox.
-
-Supervisor nằm trong container monitoring, không có container Supervisor riêng.
-Yêu cầu app non-root vẫn được đáp ứng bởi `USER node` trong Dockerfile ứng dụng.
-Monitoring cần cấu hình quyền/mount host của cAdvisor; nên chạy các tiến trình
-Grafana/Prometheus/Blackbox bằng user riêng bên trong container. Dockerfile đóng
-gói monitoring là phần hạ tầng bổ sung; Dockerfile app vẫn single-stage chung cho
-frontend/backend như đã chốt.
-
-Sau khi viết xong, cần build và scan image monitoring, xác minh Compose rồi mới
-bật. Không dùng lệnh `up -d` toàn bộ ops hiện tại với kỳ vọng nó đã gộp. Các tiêu
-chí nghiệm thu cho phiên bản gộp:
-
-1. `supervisorctl status` báo cả bốn chương trình `RUNNING`.
-2. Grafana `/api/health` khỏe, Prometheus `/-/ready` trả 200.
-3. Prometheus target cAdvisor `UP`, Blackbox có `probe_success{job="lapstore"}=1`.
-4. Có series CPU/RAM của app và MySQL live, dashboard có dữ liệu sau khoảng 2 phút.
-5. Restart/recreate monitoring giữ dữ liệu Grafana/Prometheus.
-6. Gửi SIGTERM trực tiếp tới PID một tiến trình con đang RUNNING để mô phỏng lỗi
-   và xác minh cấu hình Supervisor khởi động lại. Không dùng `supervisorctl stop`
-   cho bài thử này, vì đó là lệnh dừng có chủ ý.
-7. Docker healthcheck phản ánh lỗi; lưu ý Docker không tự restart container chỉ
-   vì trạng thái health chuyển thành unhealthy.
-
-Sau khi container gộp đã hoạt động, dùng tunnel từ Windows:
-
-```powershell
-ssh -N -L 8080:127.0.0.1:8080 -L 3001:127.0.0.1:3001 -L 9090:127.0.0.1:9090 USER_HOMESERVER@IP_HOMESERVER
-```
-
-Đóng tunnel cũ chiếm cùng port trước khi mở lệnh này. Truy cập web
-`http://localhost:8080`, Grafana `http://localhost:3001`, Prometheus
-`http://localhost:9090`. Import `ops/dashboard.json` nếu chưa tự provision dashboard.
-
-Tài liệu tham khảo: [Docker nhiều tiến trình/Supervisor](https://docs.docker.com/engine/containers/multi-service_container/),
-[Supervisor configuration](https://supervisord.org/configuration.html).
+Hai named volume monitoring được giữ khi recreate. Container backup/restore
+MySQL tiếp tục thực hiện sau phần monitoring; không tính dump migration thủ
+công là đã hoàn thành backup định kỳ.
 
 ## 12. Defense Drill, version/release và hồ sơ bàn giao
 

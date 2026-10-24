@@ -1,0 +1,12 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      preferred_ip_protocol: ip4
+      valid_status_codes: [200]
+      follow_redirects: true
+      fail_if_body_not_matches_regexp:
+        - '"status"\s*:\s*"ok"'
+        - '"database"\s*:\s*"connected"'

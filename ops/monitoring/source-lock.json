@@ -1,0 +1,61 @@
+{
+  "revision": "security.1",
+  "base": "alpine:3.24.3@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a",
+  "go": {
+    "version": "1.27.3",
+    "url": "https://go.dev/dl/go1.27.3.linux-amd64.tar.gz",
+    "sha256": "65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40"
+  },
+  "sources": {
+    "prometheus": {
+      "version": "3.13.5",
+      "commit": "f497435984d1ca1d84cda5ed309387ac2eb1f8f6",
+      "url": "https://codeload.github.com/prometheus/prometheus/tar.gz/f497435984d1ca1d84cda5ed309387ac2eb1f8f6",
+      "sha256": "c2f96e97afede2cb4b43266bf62d964bed9194c7a1ac37759e1c6fd68600b410"
+    },
+    "cadvisor": {
+      "version": "0.60.6",
+      "commit": "5bf5d43ac6f60d7ee36a13b4d5b4a78ad2d0abc7",
+      "url": "https://codeload.github.com/google/cadvisor/tar.gz/5bf5d43ac6f60d7ee36a13b4d5b4a78ad2d0abc7",
+      "sha256": "ec32ef5c21f7483e61a113ccf27ce87947e27cf22f5be2fe35a222617411eda0"
+    },
+    "grafana": {
+      "version": "13.2.4",
+      "commit": "af4a33e3786594ad72f72d97e6744010330c2977",
+      "url": "https://codeload.github.com/grafana/grafana/tar.gz/af4a33e3786594ad72f72d97e6744010330c2977",
+      "sha256": "60eed311bdf954198742a2a73f86d305c10a71f7a932b3e4f94ceaf566989ee3"
+    },
+    "prometheus_plugin": {
+      "version": "13.2.4",
+      "commit": "7d5bbc86bd38f95ca5143c8490d1204787cc391b",
+      "url": "https://codeload.github.com/grafana/grafana-prometheus-datasource/tar.gz/7d5bbc86bd38f95ca5143c8490d1204787cc391b",
+      "sha256": "ff10d0c294de89c612b7ad551155e7af79b19b26a4f23b1432a6cb8d5504bbab"
+    }
+  },
+  "assets": {
+    "grafana": {
+      "url": "https://dl.grafana.com/grafana/release/13.2.4/grafana_13.2.4_38252365904_linux_amd64.tar.gz",
+      "sha256": "c48765988fd88572607e4ea670251af8a8e64ab3e360d0f3cf67a6f3587b92ab"
+    },
+    "prometheus_ui": {
+      "url": "https://github.com/prometheus/prometheus/releases/download/v3.13.5/prometheus-web-ui-3.13.5.tar.gz",
+      "sha256": "c84c2c7eed84e184309cb5a07effade15a30ff767770eb9474e6fb4688ee02e1"
+    },
+    "blackbox": {
+      "version": "0.29.1",
+      "url": "https://github.com/prometheus/blackbox_exporter/releases/download/v0.29.1/blackbox_exporter-0.29.1.linux-amd64.tar.gz",
+      "sha256": "b82b81839e6317e84fdd367f46d7ddd3b773fa09cbe2e3d5633a59171d741e76"
+    }
+  },
+  "patches": {
+    "grafana": ["github.com/getkin/kin-openapi@v0.149.0"],
+    "cadvisor": [
+      "github.com/klauspost/compress@v1.18.7",
+      "golang.org/x/crypto@v0.57.0",
+      "golang.org/x/net@v0.60.0",
+      "golang.org/x/text@v0.42.0",
+      "google.golang.org/grpc@v1.83.2"
+    ],
+    "prometheus": ["google.golang.org/grpc@v1.83.2"]
+  }
+}

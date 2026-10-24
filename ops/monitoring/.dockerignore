@@ -1,0 +1,8 @@
+.env
+*.env
+*.log
+*.tar
+*.tar.gz
+*.zip
+.git
+reports
