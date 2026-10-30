@@ -10,3 +10,5 @@ ops/backups/
 *.tar.gz
 *.zip
 docs/DEPLOYMENT-NOTES.local.md
+
+.vs/
